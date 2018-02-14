@@ -1,0 +1,126 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "containergroupname": {
+        "type": "string",
+        "defaultValue": "[deployment().name]",
+        "metadata": {
+          "description": "Name for the container group"
+        }
+      },
+      "dnsNameLabel": {
+          "type": "string",
+          "metadata": {
+            "description": "DNS name label for the container group"
+          }
+      },
+      "email": {
+        "type": "string",
+        "metadata": {
+          "description": "Your email address for lets encrypt account"
+        }
+      },
+      "storageAccountName": {
+          "type": "string",
+          "metadata": {
+            "description": "Name of the storage account to persist ssl cert"
+          }
+      },
+      "storageAccountKey": {
+        "type": "string",
+        "metadata": {
+          "description": "Key of the storage account to persist ssl cert"
+        }
+    }
+    },
+    "variables": {},
+    "resources": [
+      {
+        "name": "[parameters('containergroupname')]",
+        "type": "Microsoft.ContainerInstance/containerGroups",
+        "apiVersion": "2018-02-01-preview",
+        "location": "eastus",
+        "properties": {
+          "containers": [
+            {
+              "name": "caddyserver",
+              "properties": {
+                "command": [
+                    "/usr/bin/caddy",
+                    "--conf",
+                    "/tmp/Caddyfile",
+                    "--log",
+                    "stdout"
+                ],
+                "image": "abiosoft/caddy",
+                "ports": [
+                  {
+                    "port": "443"
+                  },
+                  {
+                    "port": "80"
+                  }
+                ],
+                "resources": {
+                  "requests": {
+                    "cpu": "1",
+                    "memoryInGb": "1.5"
+                  }
+                },
+                "volumeMounts": [
+                  {
+                    "name": "caddyfile",
+                    "mountPath": "/tmp",
+                    "readOnly": false
+                  },
+                  {
+                      "name": "certs",
+                      "mountPath": "/root/.caddy"
+                  }
+                ]
+              }
+            }
+          ],
+          "osType": "Linux",
+          "ipAddress": {
+            "type": "Public",
+            "dnsNameLabel": "[parameters('dnsNameLabel')]",
+            "ports": [
+              {
+                "protocol": "tcp",
+                "port": "80"
+              },
+              {
+                "protocol": "tcp",
+                "port": "443"
+              }
+            ]
+          },
+          "volumes": [
+            {
+              "name": "caddyfile",
+              "secret": {
+                "Caddyfile": "[base64(concat(parameters('dnsNameLabel'), '.eastus.azurecontainer.io\ntls ', parameters('email')))]"
+              }
+            },
+            {
+                "name": "certs",
+                "azureFile": {
+                  "shareName": "certs",
+                  "storageAccountName": "[parameters('storageAccountName')]",
+                  "storageAccountKey": "[parameters('storageAccountKey')]"
+                }
+            }
+          ]
+        }
+      }
+    ],
+    "outputs": {
+      "containerFQDN": {
+        "type": "string",
+        "value": "[reference(resourceId('Microsoft.ContainerInstance/containerGroups/', parameters('containergroupname'))).ipAddress.fqdn]"
+      }
+    }
+  }
+  
