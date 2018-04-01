@@ -16,13 +16,8 @@ az group create --name requestbin --location westus
 az group deployment create \
     --name requestbin \
     --resource-group requestbin \
-    --template-uri "https://raw.githubusercontent.com/wenwu449/azure-aci-samples/dev/requestbin/azuredeploy.json"
+    --template-uri "https://raw.githubusercontent.com/wenwu449/azure-aci-samples/master/requestbin/azuredeploy.json"
     --template-parameter location=westus
-
-az group deployment wait \
-    --name requestbin \
-    --resource-group requestbin
-    --created
 
 az group deployment show \
     --name requestbin \
@@ -33,6 +28,6 @@ az group deployment show \
 
 ### Azure Portal
 Click this button to deploy.
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fwenwu449%2Fazure-aci-samples%2Fdev%2Frequestbin%2Fazuredeploy.json" target="_blank">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fwenwu449%2Fazure-aci-samples%2Fmaster%2Frequestbin%2Fazuredeploy.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
