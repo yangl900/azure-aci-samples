@@ -1,0 +1,101 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "type": "string",
+            "defaultValue": "westus",
+            "allowedValues": [
+                "westus",
+                "eastus",
+                "westeurope",
+                "southeastaisa",
+                "westus2"
+            ]
+        },
+        "hostNamePrefix": {
+            "type": "string",
+            "defaultValue": "[uniqueString(resourceGroup().id)]"
+        }
+    },
+    "variables": {
+        "requestbin_image": "wenwu449/requestbin",
+        "redis_image": "library/redis",
+        "containerGroupName": "requestbin",
+        "requestbin_port": 8000
+    },
+    "resources": [
+        {
+            "name": "[variables('containerGroupName')]",
+            "type": "Microsoft.ContainerInstance/containerGroups",
+            "apiVersion": "2018-02-01-preview",
+            "location": "[parameters('location')]",
+            "properties": {
+                "containers": [
+                    {
+                        "name": "requestbin",
+                        "properties": {
+                            "image": "[variables('requestbin_image')]",
+                            "environmentVariables": [
+                                {
+                                    "name": "REDIS_URL",
+                                    "value": "redis://127.0.0.1:6379"
+                                },
+                                {
+                                    "name": "REALM",
+                                    "value": "prod"
+                                }
+                            ],
+                            "resources": {
+                                "requests": {
+                                    "cpu": 0.5,
+                                    "memoryInGb": 0.7
+                                }
+                            },
+                            "ports": [
+                                {
+                                    "port": "[variables('requestbin_port')]"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "redis",
+                        "properties": {
+                            "image": "[variables('redis_image')]",
+                            "resources": {
+                                "requests": {
+                                    "cpu": 0.5,
+                                    "memoryInGb": 0.7
+                                }
+                            },
+                            "ports": [
+                                {
+                                    "port": 6379
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "restartPolicy": "Never",
+                "ipAddress": {
+                    "ports": [
+                        {
+                            "protocol": "tcp",
+                            "port": "[variables('requestbin_port')]"
+                        }
+                    ],
+                    "type": "Public",
+                    "dnsNameLabel": "[parameters('hostNamePrefix')]"
+                },
+                "osType": "Linux"
+            }
+        }
+    ],
+    "outputs": {
+        "requestbin_url": {
+            "type": "string",
+            "value": "[concat('http://', reference(resourceId('Microsoft.ContainerInstance/containerGroups/', variables('containerGroupName'))).ipAddress.fqdn, ':', variables('requestbin_port'))]"
+        }
+    }
+}
