@@ -7,10 +7,10 @@ Say we need a REST API to do a little bit image processing, like resize, corp et
 
 We could implement it ourselves using function supported language, C#, Java etc. But if someone have already done a good job, like [Imaginary](https://github.com/h2non/imaginary), we don't really want to reinvent the wheel.
 
-Now the only problem is that imaginary is written in Go, how do we host that in funcion?
+Now the only problem is that imaginary is written in Go, how do we host that in Azure function?
 
 ## The Design
-Here we will combine the power of Azure Function and Auzre Container Instance. Azure function will host the severless REST API, but we wil let ACI do the actual image procesing job.
+Here we will combine the power of Azure Function and Auzre Container Instance. Azure function will host the severless REST API, but we will let a container running in ACI do the actual image procesing.
 
 We will implement 2 functions:
 
@@ -28,7 +28,7 @@ timerTrigger --> | Cleanup  |  -- (delete) ->  Management API
                  +----------+
 ```
 
-## Implementation
+## The Implementation
 The sample is implemented in .Net Core on a Ubuntu machine, it should work on Windows as well.
 
 ### Run it locally
@@ -50,3 +50,8 @@ func host start
 6. Set environment variable RESOURCE_GROUP and SUBSCRIPTION_ID for where you want the container to run.
 7. Enable "Managed Service Identity" for your function. This will be the identity to manage the containers.
 8. In the resource group, grant the Azure function Contributor permission (IAM tab).
+
+## The Note
+* In this sample the container endpoint is simply http, but you can extend to https fairly easy. Like this [caddy server](https://github.com/yangl900/azure-aci-samples/tree/master/caddyserver-autossl) sample.
+
+* The container lifetime is managed by an in-memory state for simplicity. A proper way is probably persist it in a local file or somewhere remotely.
