@@ -1,0 +1,14 @@
+{
+    "bindings": [
+        {
+          "type": "httpTrigger",
+          "methods": [
+            "GET"
+          ],
+          "authLevel": "anonymous",
+          "name": "req"
+        }
+      ],
+    "scriptFile": "../bin/HttpTriggerCore.dll",
+    "entryPoint": "ImageProcessorCore.ImageProcessor.HealthCheck"
+  }

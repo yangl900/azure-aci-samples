@@ -1,0 +1,12 @@
+{
+    "bindings": [
+        {
+            "schedule": "0 */5 * * * *",
+            "name": "myTimer",
+            "type": "timerTrigger",
+            "direction": "in"
+        }
+      ],
+    "scriptFile": "../bin/HttpTriggerCore.dll",
+    "entryPoint": "ImageProcessorCore.ImageProcessor.Cleanup"
+}
