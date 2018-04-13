@@ -3,7 +3,7 @@
 This sample demonstrates how you can extend Azure Function using an Azure Container Instance.
 
 ## The Scenario
-Say we need a REST API to do a little bit image processing, like resize, corp etc. We want to leverage Azure function consumption plan to optimize the cost.
+Say we need a REST API to do a little bit image processing, like resize, crop etc. We want to leverage Azure function consumption plan to optimize the cost.
 
 We could implement it ourselves using function supported language, C#, Java etc. But if someone have already done a good job, like [Imaginary](https://github.com/h2non/imaginary), we don't really want to reinvent the wheel.
 
